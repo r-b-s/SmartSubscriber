@@ -10,11 +10,10 @@ DB.autocommit= True
 
 @DP.message_handler(aiogram.dispatcher.filters.RegexpCommandsFilter(regexp_commands=['sub\s(.+)']))   
 async def sub(message: aiogram.types.Message, regexp_command):
+    await BOT.send_message(message.from_user.id, regexp_command.group(1) ) 
     with DB.cursor() as cursor:
-        cursor.execute("""INSERT INTO blogs(URI) VALUES (%s)""", 
-                    ( regexp_command.group(1))
-                    )
-        await BOT.send_message(message.from_user.id, regexp_command.group(1) ) 
+        cursor.execute("""INSERT INTO blogs(URI) VALUES (%s);""", ( str(regexp_command.group(1))) )
+        
 
 
 async def poll():
@@ -30,7 +29,7 @@ async def help(message:  aiogram.types.Message):
 async def setup(message:  aiogram.types.Message):
     with DB.cursor() as cursor:
         cursor.execute("""CREATE TABLE IF NOT EXISTS blogs (BlogId SERIAL PRIMARY KEY, URI VARCHAR(255) NOT NULL);""")
-        cursor.execute("""SELECT * FROM blogs """)  
+        cursor.execute("""SELECT * FROM blogs ;""")  
         results =  cursor.fetchall()  
         await BOT.send_message(message.from_user.id,[next(result.values()) for result in results] )
 
