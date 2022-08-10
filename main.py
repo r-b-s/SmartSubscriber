@@ -5,13 +5,15 @@ import os,aiogram, asyncio,psycopg2
 DB = psycopg2.connect(os.getenv('DATABASE_URL'), sslmode='require')
 BOT = aiogram.Bot(token=os.getenv('SmartSub'))
 DP = aiogram.Dispatcher(BOT)
-
+DB.autocommit= True
 
 
 @DP.message_handler(aiogram.dispatcher.filters.RegexpCommandsFilter(regexp_commands=['sub\s(.+)']))   
 async def sub(message: aiogram.types.Message, regexp_command):
-    await DB.execute(f"INSERT INTO blogs(URI) "
-                    f"VALUES (:uri)", values={'uri': regexp_command.group(1)})
+    with DB.cursor() as cursor:
+        cursor.execute("""INSERT INTO blogs(URI) VALUES (%s)""", 
+                    ( regexp_command.group(1))
+                    )
 
 
 async def poll():
@@ -25,9 +27,12 @@ async def help(message:  aiogram.types.Message):
 
 @DP.message_handler(commands=['setup'])
 async def setup(message:  aiogram.types.Message):
-    await DB.execute(f"CREATE TABLE IF NOT EXISTS blogs (BlogId SERIAL PRIMARY KEY, URI VARCHAR(255) NOT NULL);")
-    results = await DB.fetch_all('SELECT * FROM blogs ')    
-    await BOT.send_message(message.from_user.id,[next(result.values()) for result in results] )
+    with DB.cursor() as cursor:
+        cursor.execute("""CREATE TABLE IF NOT EXISTS blogs (BlogId SERIAL PRIMARY KEY, URI VARCHAR(255) NOT NULL);""")
+        cursor.execute("""SELECT * FROM blogs """)  
+        results =  cursor.fetchall()  
+        await BOT.send_message(message.from_user.id,[next(result.values()) for result in results] )
+
 
 def repeat(coro, loop):
     asyncio.ensure_future(coro(), loop=loop)
