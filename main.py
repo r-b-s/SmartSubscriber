@@ -12,7 +12,7 @@ DB.autocommit= True
 async def sub(message: aiogram.types.Message, regexp_command):
     await BOT.send_message(message.from_user.id, regexp_command.group(1) ) 
     with DB.cursor() as cursor:
-        cursor.execute("""INSERT INTO blogs(URI) VALUES (%s);""", ( str(regexp_command.group(1))) )
+        cursor.execute("""INSERT INTO blogs(URI) VALUES (%s);""", ( regexp_command.group(1),) )
         
 
 
