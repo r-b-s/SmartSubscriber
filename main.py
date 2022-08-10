@@ -14,6 +14,7 @@ async def sub(message: aiogram.types.Message, regexp_command):
         cursor.execute("""INSERT INTO blogs(URI) VALUES (%s)""", 
                     ( regexp_command.group(1))
                     )
+        await BOT.send_message(message.from_user.id, regexp_command.group(1) ) 
 
 
 async def poll():
