@@ -31,7 +31,8 @@ async def setup(message:  aiogram.types.Message):
         cursor.execute("""CREATE TABLE IF NOT EXISTS blogs (BlogId SERIAL PRIMARY KEY, URI VARCHAR(255) NOT NULL);""")
         cursor.execute("""SELECT * FROM blogs ;""")  
         results =  cursor.fetchall()  
-        await BOT.send_message(message.from_user.id,[next(result.values()) for result in results] )
+        print (results)        
+        await BOT.send_message(message.from_user.id,results)
 
 
 def repeat(coro, loop):
