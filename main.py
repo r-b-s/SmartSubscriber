@@ -1,11 +1,10 @@
 
-import os,aiogram, asyncio
-from databases import Database
+import os,aiogram, asyncio,psycopg2
 
-DB =Database( os.getenv('DATABASE_URL'))
+
+DB = psycopg2.connect(os.getenv('DATABASE_URL'), sslmode='require')
 BOT = aiogram.Bot(token=os.getenv('SmartSub'))
 DP = aiogram.Dispatcher(BOT)
-
 
 
 
